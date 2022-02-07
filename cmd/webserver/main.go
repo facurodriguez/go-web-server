@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/facurodriguez/go-web-server"
 	"log"
 	"net/http"
 	"os"
@@ -12,7 +13,7 @@ const dbFileName = "game.db.json"
 func main() {
 	// db, err := bolt.Open(boltDbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	// if err != nil {
-	// 	log.Fatal(err)
+	// 	log.Fatalf("problem opening %s %v", boltDbFileName, err)
 	// }
 	// defer db.Close()
 
@@ -24,13 +25,13 @@ func main() {
 		log.Fatalf("problem opening %s %v", dbFileName, err)
 	}
 
-	store, err := NewFileSystemPlayerStore(db)
+	store, err := poker.NewFileSystemPlayerStore(db)
 
 	if err != nil {
 		log.Fatalf("problem creating file system player store, %v ", err)
 	}
 
-	server := NewPlayerServer(store)
+	server := poker.NewPlayerServer(store)
 
 	log.Fatal(http.ListenAndServe(":5001", server))
 }
