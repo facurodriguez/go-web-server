@@ -7,24 +7,28 @@ import (
 	"strings"
 )
 
-const jsonContentType = "application/json"
-
+// PlayerStore stores score information about players.
 type PlayerStore interface {
 	GetPlayerScore(name string) int
 	RecordWin(name string)
-	GetLeague() []Player
+	GetLeague() League
 }
 
-type PlayerServer struct {
-	store PlayerStore
-	http.Handler
-}
-
+// Player stores a name with a number of wins.
 type Player struct {
 	Name string
 	Wins int
 }
 
+// PlayerServer is a HTTP interface for player information.
+type PlayerServer struct {
+	store PlayerStore
+	http.Handler
+}
+
+const jsonContentType = "application/json"
+
+// NewPlayerServer creates a PlayerServer with routing configured.
 func NewPlayerServer(store PlayerStore) *PlayerServer {
 	p := new(PlayerServer)
 
@@ -68,16 +72,4 @@ func (p *PlayerServer) showScore(w http.ResponseWriter, player string) {
 func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	p.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
-}
-
-func GetPlayerScore(name string) string {
-	if name == "Pepper" {
-		return "20"
-	}
-
-	if name == "Floyd" {
-		return "10"
-	}
-
-	return ""
 }

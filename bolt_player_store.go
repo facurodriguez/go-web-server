@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 
 	bolt "go.etcd.io/bbolt"
@@ -71,6 +72,10 @@ func (b *BoltPlayerStore) GetLeague() []Player {
 	if err != nil {
 		fmt.Println("Error while trying to get league")
 	}
+
+	sort.Slice(league, func(i, j int) bool {
+		return league[i].Wins > league[j].Wins
+	})
 
 	return league
 }

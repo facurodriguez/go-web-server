@@ -3,18 +3,34 @@ package main
 import (
 	"log"
 	"net/http"
-	"time"
-
-	bolt "go.etcd.io/bbolt"
+	"os"
 )
 
-func main() {
-	db, err := bolt.Open("my.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+const boltDbFileName = "my.db"
+const dbFileName = "game.db.json"
 
-	server := NewPlayerServer(NewBoltPlayerStore(db))
+func main() {
+	// db, err := bolt.Open(boltDbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer db.Close()
+
+	// server := NewPlayerServer(NewBoltPlayerStore(db))
+
+	db, err := os.OpenFile(dbFileName, os.O_RDWR|os.O_CREATE, 0666)
+
+	if err != nil {
+		log.Fatalf("problem opening %s %v", dbFileName, err)
+	}
+
+	store, err := NewFileSystemPlayerStore(db)
+
+	if err != nil {
+		log.Fatalf("problem creating file system player store, %v ", err)
+	}
+
+	server := NewPlayerServer(store)
+
 	log.Fatal(http.ListenAndServe(":5001", server))
 }
