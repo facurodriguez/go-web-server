@@ -50,3 +50,27 @@ func (b *BoltPlayerStore) GetPlayerScore(name string) int {
 
 	return score
 }
+
+func (b *BoltPlayerStore) GetLeague() []Player {
+	league := make([]Player, 0)
+	err := b.store.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(bucketName))
+
+		return bucket.ForEach(func(k, v []byte) error {
+			wins, err := strconv.Atoi(string(v))
+			player := Player{
+				Name: string(k),
+				Wins: wins,
+			}
+			league = append(league, player)
+
+			return err
+		})
+	})
+
+	if err != nil {
+		fmt.Println("Error while trying to get league")
+	}
+
+	return league
+}
